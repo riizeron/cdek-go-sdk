@@ -87,25 +87,20 @@ type Location struct {
 type Package struct {
 	// Number Номер упаковки (можно использовать порядковый номер упаковки заказа или номер заказа), уникален в пределах заказа. Идентификатор заказа в ИС Клиента
 	Number string `json:"number"`
+
 	// Weight Общий вес (в граммах)
 	Weight int `json:"weight"`
-	// Comment Комментарий к упаковке. Обязательно и только для заказа типа "доставка"
-	Comment string `json:"comment,omitempty"`
-	// Height Габариты упаковки. Высота (в сантиметрах). Поле обязательно если:
-	// если указаны остальные габариты
-	// если заказ до постамата
+
+	// Высота (в сантиметрах). Поле обязательно если:
 	// если общий вес >=100 гр
 	Height int `json:"height,omitempty"`
-	// Length Габариты упаковки. Длина (в сантиметрах). Поле обязательно если:
-	// если указаны остальные габариты
-	// если заказ до постамата
+	// Длина (в сантиметрах). Поле обязательно если:
 	// если общий вес >=100 гр
 	Length int `json:"length,omitempty"`
-	// Width Габариты упаковки. Ширина (в сантиметрах). Поле обязательно если:
-	// если указаны остальные габариты
-	// если заказ до постамата
+	// Ширина (в сантиметрах). Поле обязательно если:
 	// если общий вес >=100 гр
 	Width int `json:"width,omitempty"`
+
 	// Items Позиции товаров в упаковке. Только для заказов "интернет-магазин". Максимум 126 уникальных позиций в заказе. Общее количество товаров в заказе может быть от 1 до 10000
 	Items []PackageItem `json:"items,omitempty"`
 }
@@ -113,41 +108,28 @@ type Package struct {
 type PackageItem struct {
 	// Name Наименование товара (может также содержать описание товара: размер, цвет)
 	Name string `json:"name"`
+
 	// WareKey Идентификатор/артикул товара. Артикул товара может содержать только символы: [A-z А-я 0-9 ! @ " # № $ ; % ^ : & ? * () _ - + = ? < > , .{ } [ ] \ / , пробел]
 	WareKey string `json:"ware_key"`
-	// Marking Маркировка товара. Если для товара/вложения указана маркировка, Amount не может быть больше 1.
-	// Для корректного отображения маркировки товара в чеке требуется передавать НЕ РАЗОБРАННЫЙ тип маркировки, который может выглядеть следующим образом:
-	// 1) Код товара в формате GS1. Пример: 010468008549838921AAA0005255832GS91EE06GS92VTwGVc7wKCc2tqRncUZ1RU5LeUKSXjWbfNQOpQjKK+A
-	// 2) Последовательность допустимых символов общей длиной в 29 символов. Пример: 00000046198488X?io+qCABm8wAYa
-	// 3) Меховые изделия. Имеют собственный формат. Пример: RU-430302-AAA7582720
+
+	// TODO: Нахуя ты?
 	Marking string `json:"marking,omitempty"`
-	// Payment Оплата за товар при получении (за единицу товара в валюте страны получателя, значение >=0) — наложенный платеж, в случае предоплаты значение = 0
+
 	Payment Payment `json:"payment"`
+
 	// Cost Объявленная стоимость товара (за единицу товара в валюте взаиморасчетов, значение >=0). С данного значения рассчитывается страховка
 	Cost float64 `json:"cost"`
 	// Amount Количество единиц товара (в штуках). Количество одного товара в заказе может быть от 1 до 999
 	Amount int `json:"amount"`
-	// NameI18N Наименование на иностранном языке. Только для международных заказов
-	NameI18N string `json:"name_i18n,omitempty"`
-	// Brand Бренд на иностранном языке. Только для международных заказов
-	Brand string `json:"brand,omitempty"`
-	// CountryCode Бренд на иностранном языке. Только для международных заказов
-	CountryCode string `json:"country_code,omitempty"`
 	// Weight Вес (за единицу товара, в граммах)
 	Weight int `json:"weight"`
-	// WeightGross Вес брутто. Только для международных заказов
-	WeightGross int `json:"weight_gross,omitempty"`
-	// Material Код материала (подробнее см. приложение 4). Только для международных заказов
-	Material string `json:"material,omitempty"`
-	// WifiGsm Содержит wifi/gsm. Только для международных заказов
-	WifiGsm bool `json:"wifi_gsm,omitempty"`
-	// Url Ссылка на сайт интернет-магазина с описанием товара. Только для международных заказов
-	Url string `json:"url,omitempty"`
 }
 
 type Payment struct {
-	// Value Сумма наложенного платежа (в случае предоплаты = 0)
+	// Всегда 0
 	Value int `json:"value"`
+
+	// TODO: Нахуя вы нужны?
 	// VatSum Сумма НДС
 	VatSum int `json:"vat_sum,omitempty"`
 	// VatRate Ставка НДС (значение - 0, 10, 20, null - нет НДС)
@@ -166,11 +148,7 @@ type Cost struct {
 }
 
 type Phone struct {
-	// Number Номер телефона. Должен передаваться в международном формате: код страны (для России +7) и сам номер (10 и более цифр)
-	// Обязателен если: нет, если заказ типа "интернет-магазин". да, если заказ типа "доставка"
-	Number string `json:"number,omitempty"`
-	// Additional Дополнительная информация (добавочный номер)
-	Additional string `json:"additional,omitempty"`
+	Number string `json:"number"`
 }
 
 type RecipientSender struct {
@@ -199,6 +177,12 @@ type RecipientSender struct {
 	PassportRequirementsSatisfied bool `json:"passport_requirements_satisfied,omitempty"`
 	// Phones Список телефонов, Не более 10 номеров
 	Phones []Phone `json:"phones,omitempty"`
+}
+
+type Contact struct {
+	// ФИО
+	Name   string  `json:"name"`
+	Phones []Phone `json:"phones"`
 }
 
 type Seller struct {

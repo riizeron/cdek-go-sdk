@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-type CalculatorTrafiffListRequest struct {
+type CalculatorTariffListRequest struct {
 	// Date Дата и время планируемой передачи заказа. По умолчанию - текущая
 	Date string `json:"date,omitempty"`
 	// Type Тип заказа: 1 - "интернет-магазин", 2 - "доставка". По умолчанию - 1
@@ -25,6 +25,19 @@ type CalculatorTrafiffListRequest struct {
 	Packages []Package `json:"packages"`
 }
 
+type CalculatorTariffRequest struct {
+	// Type Тип заказа: 1 - "интернет-магазин", 2 - "доставка". По умолчанию - 1
+	Type int `json:"type,omitempty"`
+	// 136 or 234
+	TariffCode int `json:"tariff_code"`
+	// FromLocation Адрес отправления
+	FromLocation Location `json:"from_location,omitempty"`
+	// ToLocation Адрес получения
+	ToLocation Location `json:"to_location"`
+	// Packages Список информации по местам (упаковкам)
+	Packages []Package `json:"packages"`
+}
+
 type Tariff struct {
 	TariffCode        int     `json:"tariff_code"`
 	TariffName        string  `json:"tariff_name"`
@@ -33,13 +46,15 @@ type Tariff struct {
 	DeliverySum       float64 `json:"delivery_sum"`
 	PeriodMin         int     `json:"period_min"`
 	PeriodMax         int     `json:"period_max"`
+	CalendarMin       int     `json:"calendar_min"`
+	CalendarMax       int     `json:"calendar_max"`
 }
 
 type CalculatorTrafiffListResponse struct {
 	TariffCodes []Tariff `json:"tariff_codes"`
 }
 
-func (c *clientImpl) CalculatorTrafiffList(ctx context.Context, input *CalculatorTrafiffListRequest) (*CalculatorTrafiffListResponse, error) {
+func (c *clientImpl) CalculatorTariffList(ctx context.Context, input *CalculatorTariffListRequest) (*CalculatorTrafiffListResponse, error) {
 	payload, err := json.Marshal(input)
 	if err != nil {
 		return nil, err
@@ -64,4 +79,31 @@ func (c *clientImpl) CalculatorTrafiffList(ctx context.Context, input *Calculato
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", accessToken))
 
 	return jsonReq[CalculatorTrafiffListResponse](req)
+}
+
+func (c *clientImpl) CalculatorTariff(ctx context.Context, input *CalculatorTariffRequest) (*Tariff, error) {
+	payload, err := json.Marshal(input)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodPost,
+		c.buildUri("/v2/calculator/tariff", nil),
+		bytes.NewReader(payload),
+	)
+	req.Header.Add("Content-Type", "application/json")
+	if err != nil {
+		return nil, err
+	}
+
+	accessToken, err := c.getAccessToken(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", accessToken))
+
+	return jsonReq[Tariff](req)
 }

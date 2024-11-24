@@ -2,7 +2,6 @@ package v2
 
 import (
 	"context"
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 	"testing"
 	"time"
@@ -19,20 +18,12 @@ func TestClientImpl_OrderDelete(t *testing.T) {
 	require.Error(t, err)
 	require.Nil(t, resp)
 
-	uid := uuid.NewString()
 	resp, err = c.OrderRegister(timedCtx, &OrderRegisterRequest{
-		Type:         0,
-		Number:       uid,
-		Comment:      "test",
-		TariffCode:   62,
-		FromLocation: Location{Code: 44, Address: "qwe"},
-		ToLocation:   Location{Code: 287, Address: "qwe"},
-		Sender: RecipientSender{
-			Name:    "test",
-			Company: "test",
-			Email:   "test@test.com",
-		},
-		Recipient: RecipientSender{
+		Type:          0,
+		TariffCode:    62,
+		ShipmentPoint: "OMS1",
+		DeliveryPoint: "OMS2",
+		Recipient: Contact{
 			Name: "test",
 			Phones: []Phone{
 				{Number: "123"},
@@ -40,9 +31,8 @@ func TestClientImpl_OrderDelete(t *testing.T) {
 		},
 		Packages: []Package{
 			{
-				Number:  "test",
-				Weight:  1,
-				Comment: "test",
+				Number: "test",
+				Weight: 1,
 				Items: []PackageItem{
 					{
 						Name:    "test",

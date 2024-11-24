@@ -2,7 +2,6 @@ package v2
 
 import (
 	"context"
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 	"testing"
 	"time"
@@ -20,18 +19,12 @@ func TestClientImpl_OrderUpdate(t *testing.T) {
 	require.Nil(t, resp)
 
 	registerReq := &OrderRegisterRequest{
-		Type:         0,
-		Number:       uuid.NewString(),
-		Comment:      "test",
-		TariffCode:   62,
-		FromLocation: Location{Code: 44, Address: "qwe"},
-		ToLocation:   Location{Code: 287, Address: "qwe"},
-		Sender: RecipientSender{
-			Name:    "test",
-			Company: "test",
-			Email:   "test@test.com",
-		},
-		Recipient: RecipientSender{
+		Type:          0,
+		TariffCode:    62,
+		ShipmentPoint: "OMS1",
+		DeliveryPoint: "OMS2",
+
+		Recipient: Contact{
 			Name: "test",
 			Phones: []Phone{
 				{Number: "123"},
@@ -39,9 +32,8 @@ func TestClientImpl_OrderUpdate(t *testing.T) {
 		},
 		Packages: []Package{
 			{
-				Number:  "test",
-				Weight:  1,
-				Comment: "test",
+				Number: "test",
+				Weight: 1,
 				Items: []PackageItem{
 					{
 						Name:    "test",
@@ -57,12 +49,11 @@ func TestClientImpl_OrderUpdate(t *testing.T) {
 	require.Greater(t, len(resp.Requests), 0)
 
 	updateResp, err := c.OrderUpdate(ctx, &OrderUpdateRequest{
-		UUID:       resp.Entity.Uuid,
-		Comment:    "updated",
-		ToLocation: registerReq.ToLocation,
-		Recipient:  registerReq.Recipient,
-		TariffCode: registerReq.TariffCode,
-		Packages:   registerReq.Packages,
+		UUID:          resp.Entity.Uuid,
+		Comment:       "updated",
+		DeliveryPoint: registerReq.DeliveryPoint,
+		TariffCode:    registerReq.TariffCode,
+		Packages:      registerReq.Packages,
 	})
 	require.NoError(t, err)
 

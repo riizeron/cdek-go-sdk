@@ -9,4 +9,4 @@ cover.out
 # go tool cover -html=cover.out -o cover.html
 cover.html
 
-v2/.env.local
+.env.local

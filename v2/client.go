@@ -12,7 +12,8 @@ type Client interface {
 	DeliveryPoints(ctx context.Context, input *DeliveryPointsRequest) (*DeliveryPointsResponse, error)
 	Regions(ctx context.Context, input *RegionsRequest) (*RegionsResponse, error)
 	Cities(ctx context.Context, input *CitiesRequest) (*CitiesResponse, error)
-	CalculatorTrafiffList(ctx context.Context, input *CalculatorTrafiffListRequest) (*CalculatorTrafiffListResponse, error)
+	CalculatorTariffList(ctx context.Context, input *CalculatorTariffListRequest) (*CalculatorTrafiffListResponse, error)
+	CalculatorTariff(ctx context.Context, input *CalculatorTariffRequest) (*Tariff, error)
 	OrderRegister(ctx context.Context, input *OrderRegisterRequest) (*Response, error)
 	OrderDelete(ctx context.Context, uuid string) (*Response, error)
 	OrderUpdate(ctx context.Context, input *OrderUpdateRequest) (*OrderUpdateResponse, error)
@@ -24,7 +25,18 @@ type Options struct {
 	Credentials *Credentials
 }
 
-func NewClient(opts *Options) Client {
+//func NewClient(opts *Options) Client {
+//	return &clientImpl{opts: opts}
+//}
+
+func NewClient(url string, clientId string, clientSecretId string) Client {
+	opts := &Options{
+		Endpoint: url,
+		Credentials: &Credentials{
+			ClientID:     clientId,
+			ClientSecret: clientSecretId,
+		},
+	}
 	return &clientImpl{opts: opts}
 }
 
